@@ -42,13 +42,15 @@ module DeviseTokenAuth
 
       if @resource.save
         yield @resource if block_given?
-
-        unless @resource.confirmed?
-          # user will require email authentication
-          @resource.send_confirmation_instructions({
-            client_config: params[:config_name],
-            redirect_url: @redirect_url
-          })
+        
+        if @resource.confirmation_required?
+          unless @resource.confirmed?
+            # user will require email authentication
+            @resource.send_confirmation_instructions({
+              client_config: params[:config_name],
+              redirect_url: @redirect_url
+            })
+          end
         end
 
         if active_for_authentication?
